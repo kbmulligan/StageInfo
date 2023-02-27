@@ -1,0 +1,13 @@
+{
+    "mod_id": "StageInfo",
+    "author": "various",
+    "name": "KSP2 Stage Info",
+    "description": "displays info on stages",
+    "source": "https://google.com/",
+    "version": "0.1",
+    "dependencies": [],
+    "ksp2_version": {
+        "min": "0",
+        "max": "1"
+    }
+}
