@@ -29,6 +29,7 @@ namespace StageInfo {
         private Dictionary<int, float> twrReadouts = new Dictionary<int, float>();
         private Dictionary<int, double> dVReadouts = new Dictionary<int, double>();
 
+        private bool inAtmo = false;
 
         public override void OnInitialized() {
             Logger.Info("StageInfo Loaded");
@@ -49,6 +50,7 @@ namespace StageInfo {
                 showGUI = !showGUI;
             }
         }
+
         private bool ShouldSubscribeToMessages() {
             if (subscribed) return false;
             if (GameManager.Instance == null) return false;
@@ -70,7 +72,6 @@ namespace StageInfo {
         }
 
         private void FillGUI(int windowID) {
-
             if (refreshing || twrReadouts.Count == 0) {
                 GUILayout.Label("Gathering Stage Info...");
             } else {
@@ -89,6 +90,9 @@ namespace StageInfo {
                     GUILayout.Label($"{dVReadouts[i]:N0} m/s", GUILayout.Width(windowWidth / 3));
                     GUILayout.EndHorizontal();
                 }
+                GUILayout.BeginHorizontal();
+                inAtmo = GUILayout.Toggle(inAtmo, "Sea Level");
+                GUILayout.EndHorizontal();
             }
 
             GUI.DragWindow(new Rect(0, 0, 10000, 500));
@@ -103,8 +107,8 @@ namespace StageInfo {
             dVReadouts.Clear();
             foreach (DeltaVStageInfo stageInfo in dvm.DeltaVComponent.StageInfo) {
                 
-                twrReadouts.Add(stageInfo.Stage, stageInfo.GetSituationTWR(DeltaVSituationOptions.SeaLevel));
-                dVReadouts.Add(stageInfo.Stage, stageInfo.GetSituationDeltaV(DeltaVSituationOptions.Vaccum));
+                twrReadouts.Add(stageInfo.Stage, stageInfo.GetSituationTWR(inAtmo ? DeltaVSituationOptions.SeaLevel : DeltaVSituationOptions.Vaccum));
+                dVReadouts.Add(stageInfo.Stage, stageInfo.GetSituationDeltaV(inAtmo ? DeltaVSituationOptions.SeaLevel : DeltaVSituationOptions.Vaccum));
             }
 
             refreshing = false;
@@ -117,5 +121,4 @@ namespace StageInfo {
 
 
     }
-
 }
