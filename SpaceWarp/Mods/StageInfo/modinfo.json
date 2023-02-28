@@ -2,9 +2,9 @@
   "mod_id": "StageInfo",
   "author": "various",
   "name": "KSP2 Stage Info",
-  "description": "displays info on stages",
+  "description": "Displays additional staging information",
   "source": "https://github.com/natalia-simonova/StageInfo",
-  "version": "0.1",
+  "version": "0.2",
   "dependencies": [],
   "ksp2_version": {
     "min": "0",
