@@ -41,7 +41,6 @@ namespace StageInfo {
             GameManager.Instance.Game.Messages.Subscribe<VesselDeltaVCalculationMessage>(GetSituationData);
             GameManager.Instance.Game.Messages.Subscribe<GameStateChangedMessage>(UpdateGameState);
             GameManager.Instance.Game.Messages.Subscribe<OpenEngineersReportWindowMessage>(ShowGUI);
-            GameManager.Instance.Game.Messages.Subscribe<CloseEngineersReportWindowMessage>(HideGUI);
             SpaceWarpManager.RegisterAppButton(
                 "Stage Info",
                 "BTN-StageInfoButton",
@@ -51,11 +50,10 @@ namespace StageInfo {
 
         private void UpdateGameState(MessageCenterMessage msg) {
             inVAB = GameManager.Instance.Game.GlobalGameState.GetState() == GameState.VehicleAssemblyBuilder;
-            if (!inVAB && GameManager.Instance.Game.GlobalGameState.GetState() != GameState.FlightView) showGUI = false;
+            showGUI = false;
         }
 
         private void ShowGUI(MessageCenterMessage msg) => showGUI = true;
-        private void HideGUI(MessageCenterMessage msg) => showGUI = false;
 
         void OnGUI() {
             if (!showGUI) return;
@@ -84,14 +82,14 @@ namespace StageInfo {
                 GUILayout.EndHorizontal();
                 GUILayout.Box("", horizontalDivider);
                 for (int i = 0; i < situData.Count; i++) {
-                    if (inVAB && hideExtra && situData[i].dV[DeltaVSituationOptions.Altitude] == 0) continue;
+                    if (inVAB && hideExtra && situData[i].dV[(int)DeltaVSituationOptions.Altitude] == 0) continue;
                     if (!inVAB && hideExtra && i < situData.Count - 1) continue;
                     DeltaVSituationOptions situ = inVAB ? (inAtmo[i] ? DeltaVSituationOptions.SeaLevel : DeltaVSituationOptions.Vaccum) : DeltaVSituationOptions.Altitude;
                     GUILayout.BeginHorizontal();
                     GUILayout.Label($" <color=#C0C7D5>{situData.Count - i:00}</color> <color=#0A0B0E><b>|</b></color>", GUILayout.Width(windowWidth / 6));
-                    float twr = situData[i].twr[situ];
+                    float twr = situData[i].twr[(int)situ];
                     GUILayout.Label($"<color={(twr < 1 ? "#E04949" : (twr > 1.25 ? "#0DBE2A" : "#E0A400"))}>{twr:N2}</color> <color=#0A0B0E><b>|</b></color>", GUILayout.Width(windowWidth / 6));
-                    GUILayout.Label($"<color=#C0C7D5>{situData[i].dV[situ]:N0} m/s</color>", GUILayout.Width(windowWidth / 4));
+                    GUILayout.Label($"<color=#C0C7D5>{situData[i].dV[(int)situ]:N0} m/s</color>", GUILayout.Width(windowWidth / 4));
                     if (inVAB) inAtmo[i] = GUILayout.Toggle(inAtmo[i], $"<color=#C0C7D5> {(inAtmo[i] ? "1 atm" : "Vac.")}</color>", GUILayout.Width(windowWidth / 4));
                     else GUILayout.Label($"<color=#0A0B0E><b>|</b></color> <color=#C0C7D5>{FormatBurnTime(situData[i].burn)}</color>", GUILayout.Width(windowWidth / 4));
                     GUILayout.EndHorizontal(); }
@@ -125,19 +123,19 @@ namespace StageInfo {
         public class SituationData {
 
             public double burn;
-            public Dictionary<DeltaVSituationOptions, float> twr;
-            public Dictionary<DeltaVSituationOptions, double> dV;
+            public float[] twr;
+            public double[] dV;
 
             public SituationData(DeltaVStageInfo stageInfo) {
                 burn = stageInfo.StageBurnTime;
-                twr = new Dictionary<DeltaVSituationOptions, float>() {
-                    [DeltaVSituationOptions.SeaLevel] = stageInfo.GetSituationTWR(DeltaVSituationOptions.SeaLevel),
-                    [DeltaVSituationOptions.Altitude] = stageInfo.GetSituationTWR(DeltaVSituationOptions.Altitude),
-                    [DeltaVSituationOptions.Vaccum] = stageInfo.GetSituationTWR(DeltaVSituationOptions.Vaccum)};
-                dV = new Dictionary<DeltaVSituationOptions, double>() {
-                    [DeltaVSituationOptions.SeaLevel] = stageInfo.GetSituationDeltaV(DeltaVSituationOptions.SeaLevel),
-                    [DeltaVSituationOptions.Altitude] = stageInfo.GetSituationDeltaV(DeltaVSituationOptions.Altitude),
-                    [DeltaVSituationOptions.Vaccum] = stageInfo.GetSituationDeltaV(DeltaVSituationOptions.Vaccum)};
+                twr = new float[3] {
+                    stageInfo.GetSituationTWR(DeltaVSituationOptions.SeaLevel),
+                    stageInfo.GetSituationTWR(DeltaVSituationOptions.Altitude),
+                    stageInfo.GetSituationTWR(DeltaVSituationOptions.Vaccum)};
+                dV = new double[3] {
+                    stageInfo.GetSituationDeltaV(DeltaVSituationOptions.SeaLevel),
+                    stageInfo.GetSituationDeltaV(DeltaVSituationOptions.Altitude),
+                    stageInfo.GetSituationDeltaV(DeltaVSituationOptions.Vaccum)};
             }
 
         }
