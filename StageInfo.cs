@@ -13,6 +13,9 @@ using KSP.Sim.impl;
 using UnityEngine;
 using SpaceWarp.API.Mods;
 using SpaceWarp.API.AssetBundles;
+using SpaceWarp.API.Toolbar;
+using SpaceWarp.API.Managers;
+using SpaceWarp.API;
 
 namespace StageInfo {
 
@@ -39,6 +42,11 @@ namespace StageInfo {
             GameManager.Instance.Game.Messages.Subscribe<GameStateChangedMessage>(UpdateGameState);
             GameManager.Instance.Game.Messages.Subscribe<OpenEngineersReportWindowMessage>(ShowGUI);
             GameManager.Instance.Game.Messages.Subscribe<CloseEngineersReportWindowMessage>(HideGUI);
+            SpaceWarpManager.RegisterAppButton(
+                "Stage Info",
+                "BTN-StageInfoButton",
+                SpaceWarpManager.LoadIcon(),
+                delegate { showGUI = !showGUI; });
         }
 
         private void UpdateGameState(MessageCenterMessage msg) {
